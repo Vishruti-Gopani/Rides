@@ -22,8 +22,7 @@ class VehicleListViewController: UIViewController {
         self.updateVehicleModel()
     }
     @IBAction func sortByButtonTapped(_ sender: UIButton) {
-        //Sorting vehicles by type
-        vehicleVM.vehicles.sort(by: {$0.car_type < $1.car_type})
+        vehicleVM.sortByType()
         vehicleListTableView.reloadData()
     }
 
@@ -34,11 +33,26 @@ class VehicleListViewController: UIViewController {
     }
     
     func updateVehicleModel(){
-        guard let noOfResults = TextField.text else{
+        guard let  noOfResults = TextField.text , let result = Int(noOfResults), isValidTFValue(value: result) else{
+            /* Showing alert for invalid textfield value*/
+            showAlertView()
             return
         }
-        vehicleVM.fetchVehicles(size: noOfResults)
+        vehicleVM.fetchVehicles(size: result)
         observeEvent()
+    }
+    
+    func isValidTFValue(value : Int) -> Bool{
+        guard value > 0 , value <= Constants.noOfAPIResults else{
+            return false
+        }
+        return true
+    }
+    
+    func showAlertView(){
+        let alert = UIAlertController(title: "Invalid Value Entered!!!", message: "\nPlease add valid integer value.\n Value must be in range 1 to 100.", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        self.present(alert, animated: true, completion: nil)
     }
     
     func setupTableView(){
@@ -58,7 +72,7 @@ class VehicleListViewController: UIViewController {
         searchView.layer.cornerRadius = 10
     }
     
-    //observeEvent function will track of different API events and updates UI based on response.
+    //observeEvent function will keep track of different API events and updates UI based on response.
     func observeEvent() {
         vehicleVM.eventHandler = { [weak self] event in
             switch event {
@@ -80,10 +94,14 @@ class VehicleListViewController: UIViewController {
                     }
                 case .error(let error):
                 print(error?.localizedDescription)
+                DispatchQueue.main.async {
+                    let alert = UIAlertController(title: "Something went wrong!!!", message: "The operation couldn’t be completed.", preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+                    self?.present(alert, animated: true, completion: nil)
+                }
             }
         }
     }
-
 }
 
 // MARK: Tableview Datasource and Delegate Methods
@@ -94,6 +112,7 @@ extension VehicleListViewController: UITableViewDelegate, UITableViewDataSource{
         return vehicleVM.vehicles.count
         
     }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 1
     }
@@ -121,12 +140,10 @@ extension VehicleListViewController: UITableViewDelegate, UITableViewDataSource{
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if let vc = storyboard?.instantiateViewController(withIdentifier: Constants.VCId) as? VehicleDetailViewController{
+        if let vc = storyboard?.instantiateViewController(withIdentifier: Constants.pageContainerVCId) as? PageContainerViewController{
             tableView.deselectRow(at: indexPath, animated: true)
             vc.carData = vehicleVM.vehicles[indexPath.section]
             self.navigationController?.pushViewController(vc, animated: true)
         }
     }
 }
-
-

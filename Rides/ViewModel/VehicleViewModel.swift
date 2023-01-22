@@ -14,7 +14,7 @@ class VehicleViewModel {
     //Data binder to View
     var eventHandler: ((_ event: Event) -> Void)?
     
-    func fetchVehicles(size:String){
+    func fetchVehicles(size:Int){
         self.eventHandler?(.loading)
         APIManager.shared.getVehicleModel(size: size) { results in
             self.eventHandler?(.stopLoading)
@@ -28,6 +28,10 @@ class VehicleViewModel {
                 self.eventHandler?(.error(error))
           }
         }
+    }
+    
+    func sortByType(){
+         vehicles.sort(by: {$0.car_type < $1.car_type})
     }
     
     enum Event {

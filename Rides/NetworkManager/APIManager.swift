@@ -18,7 +18,7 @@ enum APIError: Error{
 final class APIManager {
     
     static let shared = APIManager()
-    func getVehicleModel(size: String, completion: @escaping (Result<[Vehicle], Error>) -> (Void)){
+    func getVehicleModel(size: Int, completion: @escaping (Result<[Vehicle], Error>) -> (Void)){
         guard let url = URL(string: "\(Constants.baseURL)?size=\(size)") else {return}
         let task = URLSession.shared.dataTask(with: url) { data, response, error in
             guard let data = data , error == nil else{

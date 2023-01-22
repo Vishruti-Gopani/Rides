@@ -18,6 +18,7 @@ class VehicleDetailViewController: UIViewController {
     
     // MARK: - Variables
     var carData: Vehicle?
+    var index: Int?
     
     override func viewDidLoad() {
         super.viewDidLoad()
